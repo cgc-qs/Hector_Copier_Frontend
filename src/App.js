@@ -1,16 +1,20 @@
-// project import
-import Routes from 'routes';
-import ThemeCustomization from 'themes';
-import ScrollTop from 'components/ScrollTop';
+import { CssBaseline, ThemeProvider } from '@mui/material';
+import { useRoutes } from 'react-router-dom';
+import Router from './routes/Router';
 
-// ==============================|| APP - THEME, ROUTER, LOCAL  ||============================== //
+import { baselightTheme } from "./theme/DefaultColors";
 
-const App = () => (
-  <ThemeCustomization>
-    <ScrollTop>
-      <Routes />
-    </ScrollTop>
-  </ThemeCustomization>
-);
+function App() {
+  const routing = useRoutes(Router);
+  const theme = baselightTheme;
+  return (
+    <ThemeProvider theme={theme}>
+
+      <CssBaseline />
+      {routing}
+
+    </ThemeProvider>
+  );
+}
 
 export default App;
