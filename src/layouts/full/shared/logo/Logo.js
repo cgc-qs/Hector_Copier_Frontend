@@ -12,7 +12,8 @@ import { ReactComponent as LogoDark } from 'src/assets/images/logos/dark-logo.sv
 const Logo = () => {
   return (
     // <LinkStyled to="/">
-      <LogoDark height={70} />
+    <LogoDark height={70} style={{marginTop:10}}/>
+     
     // </LinkStyled>
   )
 };
