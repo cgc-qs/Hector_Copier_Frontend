@@ -2,6 +2,7 @@ import { useMediaQuery, Box, Drawer } from '@mui/material';
 import Logo from '../shared/logo/Logo';
 import SidebarItems from './SidebarItems';
 // import { Upgrade } from './Updrade';
+import bgImage from "src/assets/images/backgrounds/sidebar-4.jpg";
 
 const Sidebar = (props) => {
 
@@ -30,30 +31,46 @@ const Sidebar = (props) => {
               boxSizing: 'border-box',
             },
           }}
+         
         >
-          {/* ------------------------------------------- */}
-          {/* Sidebar Box */}
-          {/* ------------------------------------------- */}
+                    
           <Box
             sx={{
               height: '100%',
             }}
+            style={{ 
+              backgroundImage: "url(" + bgImage + ")" ,
+              position: "absolute",
+              zIndex: "1",
+              height: "100%",
+              width: "100%",
+              display: "block",
+              top: "0",
+              left: "0",
+              backgroundSize: "cover",
+              backgroundPosition: "center center",                     
+              "&:after": {
+                position: "absolute",
+                zIndex: "3",
+                width: "100%",
+                height: "100%",
+                content: '""',
+                display: "block",
+                background: "#000",
+                opacity: ".8",
+            },}}
           >
-            {/* ------------------------------------------- */}
-            {/* Logo */}
-            {/* ------------------------------------------- */}
+          
             <Box px={3}>
               <Logo />
             </Box>
-            <Box>
-              {/* ------------------------------------------- */}
-              {/* Sidebar Items */}
-              {/* ------------------------------------------- */}
-              <SidebarItems />
-              {/* <Upgrade /> */}
+            <Box>             
+              <SidebarItems />             
             </Box>
             
           </Box>
+
+         
         </Drawer>
       </Box>
     );
