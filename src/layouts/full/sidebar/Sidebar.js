@@ -2,7 +2,7 @@ import { useMediaQuery, Box, Drawer } from '@mui/material';
 import Logo from '../shared/logo/Logo';
 import SidebarItems from './SidebarItems';
 // import { Upgrade } from './Updrade';
-import bgImage from "src/assets/images/backgrounds/sidebar-4.jpg";
+import bgImage from "src/assets/images/backgrounds/sidebar-2.jpg";
 
 const Sidebar = (props) => {
 
