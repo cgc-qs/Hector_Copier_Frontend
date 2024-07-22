@@ -11,19 +11,19 @@ import TableCell from '@mui/material/TableCell';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 
-import Label from 'src/components/label';
+// import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
 export default function UserTableRow({
+  ID,
   selected,
-  name,
+  Name,
   avatarUrl,
-  company,
-  role,
-  isVerified,
-  status,
+  Email,
+  ExpireTime,  
+  AccountNumber,
   handleClick,
 }) {
   const [open, setOpen] = useState(null);
@@ -32,9 +32,16 @@ export default function UserTableRow({
     setOpen(event.currentTarget);
   };
 
-  const handleCloseMenu = () => {
+  const handleCloseMenu = () => {    
     setOpen(null);
   };
+
+  const Edit=()=>{    
+    handleCloseMenu();
+  }
+  const Delete=()=>{   
+    handleCloseMenu();
+  }
 
   return (
     <>
@@ -45,22 +52,22 @@ export default function UserTableRow({
 
         <TableCell component="th" scope="row" padding="none">
           <Stack direction="row" alignItems="center" spacing={2}>
-            <Avatar alt={name} src={avatarUrl} />
+            <Avatar alt={Name} src={avatarUrl} />
             <Typography variant="subtitle2" noWrap>
-              {name}
+              {Name}
             </Typography>
           </Stack>
         </TableCell>
 
-        <TableCell>{company}</TableCell>
+        <TableCell>{Email}</TableCell>
 
-        <TableCell>{role}</TableCell>
+        <TableCell>{AccountNumber}</TableCell>
 
-        <TableCell align="center">{isVerified ? 'Yes' : 'No'}</TableCell>
+        <TableCell >{ExpireTime}</TableCell>
 
-        <TableCell>
+        {/* <TableCell>
           <Label color={(status === 'banned' && 'error') || 'success'}>{status}</Label>
-        </TableCell>
+        </TableCell> */}
 
         <TableCell align="right">
           <IconButton onClick={handleOpenMenu}>
@@ -79,12 +86,12 @@ export default function UserTableRow({
           sx: { width: 140 },
         }}
       >
-        <MenuItem onClick={handleCloseMenu}>
+        <MenuItem onClick={Edit}>
           <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
           Edit
         </MenuItem>
 
-        <MenuItem onClick={handleCloseMenu} sx={{ color: 'error.main' }}>
+        <MenuItem onClick={Delete} sx={{ color: 'error.main' }}>
           <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
           Delete
         </MenuItem>
@@ -95,11 +102,10 @@ export default function UserTableRow({
 
 UserTableRow.propTypes = {
   avatarUrl: PropTypes.any,
-  company: PropTypes.any,
+  Email: PropTypes.any,
   handleClick: PropTypes.func,
-  isVerified: PropTypes.any,
-  name: PropTypes.any,
-  role: PropTypes.any,
+  ExpireTime: PropTypes.any,
+  Name: PropTypes.any,
   selected: PropTypes.any,
   status: PropTypes.string,
 };

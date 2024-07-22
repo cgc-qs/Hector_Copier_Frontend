@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -10,7 +10,7 @@ import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 
-import { users } from './components/user';
+// import { users } from './components/user';
 
 import Iconify from 'src/components/iconify';
 
@@ -21,10 +21,14 @@ import UserTableHead from './components/user-table-head';
 import TableEmptyRows from './components/table-empty-rows';
 import UserTableToolbar from './components/user-table-toolbar';
 import { emptyRows, applyFilter, getComparator } from './components/utils';
+import axios from 'axios';
 
 // ----------------------------------------------------------------------
 
 export default function Dashboard() {
+
+  const [users, setUers] =  useState([]);
+
   const [page, setPage] = useState(0);
 
   const [order, setOrder] = useState('asc');
@@ -37,6 +41,29 @@ export default function Dashboard() {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
+  const baseURL=process.env.REACT_APP_baseURL;
+
+  useEffect(() => {
+    let config = {
+      method: 'post',
+      url: `${baseURL}/RemoteCopier/AllClients`,     
+  };
+    axios(config)
+      .then((response) => {
+
+        if (response.status === 200) {
+          console.log(response);
+          setUers(response.data.result);
+        }
+        
+      })
+      .catch((error) => {
+        console.log(error);
+      
+      });
+
+  }, []);
+
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
     if (id !== '') {
@@ -47,7 +74,7 @@ export default function Dashboard() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = users.map((n) => n.name);
+      const newSelecteds = users.map((n) => n.Name);
       setSelected(newSelecteds);
       return;
     }
@@ -94,6 +121,12 @@ export default function Dashboard() {
 
   const notFound = !dataFiltered.length && !!filterName;
 
+  const GetDateString=(date)=>{
+
+    var dateType=new Date(date);
+    return dateType.getFullYear()+" / "+(dateType.getMonth()+1)+" / "+dateType.getDate();     
+  }
+
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
@@ -122,11 +155,10 @@ export default function Dashboard() {
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
-                  { id: 'name', label: 'Name' },
-                  { id: 'company', label: 'Company' },
-                  { id: 'role', label: 'Role' },
-                  { id: 'isVerified', label: 'Verified', align: 'center' },
-                  { id: 'status', label: 'Status' },
+                  { id: 'Name', label: 'Name' },
+                  { id: 'Email', label: 'Email' },                
+                  { id: 'AccountNumber', label: 'AccountNumber' },
+                  { id: 'ExpireTime', label: 'ExpireTime' },
                   { id: '' },
                 ]}
               />
@@ -136,14 +168,14 @@ export default function Dashboard() {
                   .map((row) => (
                     <UserTableRow
                       key={row.id}
-                      name={row.name}
-                      role={row.role}
-                      status={row.status}
-                      company={row.company}
+                      ID={row.id}
+                      Name={row.Name}                                   
+                      Email={row.Email}
                       avatarUrl={row.avatarUrl}
-                      isVerified={row.isVerified}
-                      selected={selected.indexOf(row.name) !== -1}
-                      handleClick={(event) => handleClick(event, row.name)}
+                      AccountNumber={row.AccountNumber}
+                      ExpireTime={GetDateString(row.ExpireTime)}
+                      selected={selected.indexOf(row.Name) !== -1}
+                      handleClick={(event) => handleClick(event, row.Name)}
                     />
                   ))}
 
