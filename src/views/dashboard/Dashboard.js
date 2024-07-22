@@ -20,7 +20,8 @@ import UserTableRow from './components/user-table-row';
 import UserTableHead from './components/user-table-head';
 import TableEmptyRows from './components/table-empty-rows';
 import UserTableToolbar from './components/user-table-toolbar';
-import { emptyRows, applyFilter, getComparator } from './components/utils';
+import { emptyRows, applyFilter, getComparator ,GetDateString} from './components/utils';
+
 import axios from 'axios';
 
 // ----------------------------------------------------------------------
@@ -121,11 +122,15 @@ export default function Dashboard() {
 
   const notFound = !dataFiltered.length && !!filterName;
 
-  const GetDateString=(date)=>{
+  // const GetDateString=(date)=>{
 
-    var dateType=new Date(date);
-    return dateType.getFullYear()+" / "+(dateType.getMonth()+1)+" / "+dateType.getDate();     
-  }
+  //   var dateType=new Date(date);
+  //   var month=(dateType.getMonth()+1)<10? ("0"+(dateType.getMonth()+1).toString()):(dateType.getMonth()+1).toString();
+  //   var day=(dateType.getDate())<10? ("0"+(dateType.getDate()).toString()):(dateType.getDate()).toString();
+  //   return dateType.getFullYear()+"-"+month+"-"+day;     
+  // }
+
+ 
 
   return (
     <Container>
@@ -159,6 +164,8 @@ export default function Dashboard() {
                   { id: 'Email', label: 'Email' },                
                   { id: 'AccountNumber', label: 'AccountNumber' },
                   { id: 'ExpireTime', label: 'ExpireTime' },
+                  { id: 'createdAt', label: 'Created' },
+                  { id: 'updatedAt', label: 'Updated' },
                   { id: '' },
                 ]}
               />
@@ -173,7 +180,11 @@ export default function Dashboard() {
                       Email={row.Email}
                       avatarUrl={row.avatarUrl}
                       AccountNumber={row.AccountNumber}
-                      ExpireTime={GetDateString(row.ExpireTime)}
+                      updatedAt={GetDateString(row.updatedAt)}
+                      createdAt={GetDateString(row.createdAt)}
+                      clients={users}
+                      setclients={setUers}
+                      ExpireTime={GetDateString(row.ExpireTime)}                    
                       selected={selected.indexOf(row.Name) !== -1}
                       handleClick={(event) => handleClick(event, row.Name)}
                     />

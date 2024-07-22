@@ -10,6 +10,15 @@ export const visuallyHidden = {
   clip: 'rect(0 0 0 0)',
 };
 
+
+export function GetDateString(date) {
+
+  var dateType = new Date(date);
+  var month = (dateType.getMonth() + 1) < 10 ? ("0" + (dateType.getMonth() + 1).toString()) : (dateType.getMonth() + 1).toString();
+  var day = (dateType.getDate()) < 10 ? ("0" + (dateType.getDate()).toString()) : (dateType.getDate()).toString();
+  return dateType.getFullYear() + "-" + month + "-" + day;
+}
+
 export function emptyRows(page, rowsPerPage, arrayLength) {
   return page ? Math.max(0, (1 + page) * rowsPerPage - arrayLength) : 0;
 }

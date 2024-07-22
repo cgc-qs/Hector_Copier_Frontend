@@ -13,34 +13,144 @@ import IconButton from '@mui/material/IconButton';
 
 // import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
+import * as React from 'react';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import axios from 'axios';
+import { GetDateString } from './utils';
 
 // ----------------------------------------------------------------------
 
 export default function UserTableRow({
+  clients,
+  setclients,
   ID,
   selected,
   Name,
   avatarUrl,
   Email,
-  ExpireTime,  
+  ExpireTime,
   AccountNumber,
   handleClick,
+  createdAt,
+  updatedAt
 }) {
   const [open, setOpen] = useState(null);
+  const [show, setShow] = React.useState(false);
+  const [newName, setNewName] = useState(Name);
+  const [newEmail, setnewEmail] = useState(Email);
+  const [newAccountNumber, setnewAccountNumber] = useState(AccountNumber);
+  const [newExpireTime, setnewExpireTime] = useState(ExpireTime);
+
+
 
   const handleOpenMenu = (event) => {
     setOpen(event.currentTarget);
   };
 
-  const handleCloseMenu = () => {    
+  const handleCloseMenu = () => {
     setOpen(null);
   };
 
-  const Edit=()=>{    
+  const Edit = () => {
     handleCloseMenu();
+    setShow(true);
   }
-  const Delete=()=>{   
+
+  const handleClose = () => {
+    setShow(false);
+  };
+
+  const Delete = () => {
     handleCloseMenu();
+    Confirm_Delete();
+  }
+
+  const baseURL = process.env.REACT_APP_baseURL;
+
+  const Modify_Clients_Info = (newInfo, isDelete) => {
+    let newClients = [];
+    for (let i = 0; i < clients.length; i++) {
+
+      if (!isDelete) {
+        newClients.push(clients[i]);
+        if (newClients[i].id === ID) {
+          newClients[i].Name = newInfo.Name;
+          newClients[i].Email = newInfo.Email;
+          newClients[i].AccountNumber = newInfo.AccountNumber;
+          newClients[i].ExpireTime = GetDateString(newInfo.ExpireTime);
+          newClients[i].createdAt = GetDateString(newInfo.createdAt);
+          newClients[i].updatedAt = GetDateString(newInfo.updatedAt);
+        }
+      }
+      else {
+        if (clients[i].id !== ID)
+          newClients.push(clients[i]);
+      }
+
+    }
+    setclients(newClients);
+  }
+
+  const Confirm_Edit = async () => {
+
+    let config = {
+      method: 'post',
+      url: `${baseURL}/RemoteCopier/UpdateClient`,
+      data: {
+        id: ID,
+        Name: newName,
+        Email: newEmail,
+        AccountNumber: newAccountNumber,
+        ExpireTime: newExpireTime
+      }
+    };
+
+    await axios(config)
+      .then((response) => {
+
+        if (response.status === 200) {
+          console.log(response.data);
+          Modify_Clients_Info(response.data.result, false);
+        }
+
+      })
+      .catch((error) => {
+        console.log(error);
+
+      });
+
+  }
+
+  const Confirm_Delete = async () => {
+
+    let config = {
+      method: 'post',
+      url: `${baseURL}/RemoteCopier/DeleteClient`,
+      data: {
+        id: ID,
+      }
+    };
+
+    await axios(config)
+      .then((response) => {
+
+        if (response.status === 200) {
+          console.log(response.data);
+          Modify_Clients_Info(response.data.result, true);
+        }
+
+      })
+      .catch((error) => {
+        console.log(error);
+
+      });
+
   }
 
   return (
@@ -64,6 +174,10 @@ export default function UserTableRow({
         <TableCell>{AccountNumber}</TableCell>
 
         <TableCell >{ExpireTime}</TableCell>
+
+        <TableCell >{createdAt}</TableCell>
+
+        <TableCell >{updatedAt}</TableCell>
 
         {/* <TableCell>
           <Label color={(status === 'banned' && 'error') || 'success'}>{status}</Label>
@@ -96,6 +210,87 @@ export default function UserTableRow({
           Delete
         </MenuItem>
       </Popover>
+
+      <React.Fragment>
+        <Dialog
+          open={show}
+          onClose={handleClose}
+          PaperProps={{
+            component: 'form',
+            onSubmit: (event) => {
+              event.preventDefault();
+              handleClose();
+              Confirm_Edit();
+            },
+
+          }}
+        >
+          <DialogTitle>Edit</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Please modify client Information.
+            </DialogContentText>
+            <TextField
+              autoFocus
+              required
+              margin="dense"
+              id="name"
+              name="Name"
+              label="Name"
+              type="text"
+              fullWidth
+              variant="standard"
+              defaultValue={Name}
+              onChange={(e) => { setNewName(e.target.value) }}
+            />
+            <TextField
+              autoFocus
+              required
+              margin="dense"
+              id="name"
+              name="Email"
+              label="Email Address"
+              type="email"
+              fullWidth
+              variant="standard"
+              defaultValue={Email}
+              onChange={(e) => { setnewEmail(e.target.value) }}
+            />
+            <TextField
+              autoFocus
+              required
+              margin="dense"
+              id="name"
+              name="AccountNumber"
+              label="Account Number"
+              type="number"
+              fullWidth
+              variant="standard"
+              defaultValue={AccountNumber}
+              onChange={(e) => { setnewAccountNumber(e.target.value) }}
+            />
+            <TextField
+              autoFocus
+              required
+              margin="dense"
+              id="name"
+              name="ExpireTime"
+              label="Expire Time"
+              type="date"
+              fullWidth
+              variant="standard"
+              defaultValue={ExpireTime}
+              onChange={(e) => { setnewExpireTime(e.target.value) }}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose}>Cancel</Button>
+            <Button type="submit">Confirm</Button>
+          </DialogActions>
+        </Dialog>
+      </React.Fragment>
+
+
     </>
   );
 }
