@@ -13,22 +13,30 @@ import TablePagination from '@mui/material/TablePagination';
 // import { users } from './components/user';
 
 import Iconify from 'src/components/iconify';
-
-
 import TableNoData from './components/table-no-data';
 import UserTableRow from './components/user-table-row';
 import UserTableHead from './components/user-table-head';
 import TableEmptyRows from './components/table-empty-rows';
 import UserTableToolbar from './components/user-table-toolbar';
-import { emptyRows, applyFilter, getComparator ,GetDateString} from './components/utils';
+import { emptyRows, applyFilter, getComparator, GetDateString } from './components/utils';
+
+
+import * as React from 'react';
+import TextField from '@mui/material/TextField';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 
 import axios from 'axios';
+
 
 // ----------------------------------------------------------------------
 
 export default function Dashboard() {
 
-  const [users, setUers] =  useState([]);
+  const [users, setUers] = useState([]);
 
   const [page, setPage] = useState(0);
 
@@ -42,13 +50,53 @@ export default function Dashboard() {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const baseURL=process.env.REACT_APP_baseURL;
+  const [show, setShow] = React.useState(false);
+  const [newName, setNewName] = useState("");
+  const [newEmail, setnewEmail] = useState("");
+  const [newAccountNumber, setnewAccountNumber] = useState();
+  const [newExpireTime, setnewExpireTime] = useState();
+
+  const [selected_Del, setSelected_Del] = useState(false);
+
+  const handleClose = () => {
+    setShow(false);
+  };
+
+  const baseURL = process.env.REACT_APP_baseURL;
+
+  useEffect(() => {
+
+    if (!selected_Del)
+      return;
+
+    let config = {
+      method: 'post',
+      url: `${baseURL}/RemoteCopier/DeleteAllClient`,
+      data: { IDs: selected }
+    };
+    axios(config)
+      .then((response) => {
+        if (response.status === 200) {
+          console.log(response.data.result);
+          setSelected_Del(false);
+          Create_Clients_Info_2();
+          setSelected([]);
+        }
+
+      })
+      .catch((error) => {
+        console.log(error);
+
+      });
+
+
+  }, [selected_Del]);
 
   useEffect(() => {
     let config = {
       method: 'post',
-      url: `${baseURL}/RemoteCopier/AllClients`,     
-  };
+      url: `${baseURL}/RemoteCopier/AllClients`,
+    };
     axios(config)
       .then((response) => {
 
@@ -56,11 +104,11 @@ export default function Dashboard() {
           console.log(response);
           setUers(response.data.result);
         }
-        
+
       })
       .catch((error) => {
         console.log(error);
-      
+
       });
 
   }, []);
@@ -75,18 +123,18 @@ export default function Dashboard() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = users.map((n) => n.Name);
+      const newSelecteds = users.map((n) => n.id);
       setSelected(newSelecteds);
       return;
     }
     setSelected([]);
   };
 
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
+  const handleClick = (event, id) => {
+    const selectedIndex = selected.indexOf(id);
     let newSelected = [];
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
+      newSelected = newSelected.concat(selected, id);
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -130,14 +178,80 @@ export default function Dashboard() {
   //   return dateType.getFullYear()+"-"+month+"-"+day;     
   // }
 
- 
+  const ShowDialog = () => {
+    setShow(true);
+  }
+
+
+  const Create_Clients_Info = (newInfo) => {
+    let newClients = [];
+    for (let i = 0; i < users.length; i++) {
+      newClients.push(users[i]);
+    }
+    let new_client = {};
+    new_client.Name = newInfo.Name;
+    new_client.Email = newInfo.Email;
+    new_client.AccountNumber = newInfo.AccountNumber;
+    new_client.ExpireTime = GetDateString(newInfo.ExpireTime);
+    new_client.createdAt = GetDateString(newInfo.createdAt);
+    new_client.updatedAt = GetDateString(newInfo.updatedAt);
+    new_client.id = newInfo.id;
+    newClients.push(new_client);
+    setUers(newClients);
+  }
+
+  const Create_Clients_Info_2 = () => {
+    let newClients = [];
+    for (let i = 0; i < users.length; i++) {
+      let isSelected = false;
+      for (let j = 0; j < selected.length; j++) {
+        if (users[i].id === selected[j]) {
+          isSelected = true;
+          break;
+        }
+      }
+      if (!isSelected)
+        newClients.push(users[i]);
+    }
+    setUers(newClients);
+  }
+
+
+  const Confirm_Create = async () => {
+
+    let config = {
+      method: 'post',
+      url: `${baseURL}/RemoteCopier/ClientCreate`,
+      data: {
+        Name: newName,
+        Email: newEmail,
+        AccountNumber: newAccountNumber,
+        ExpireTime: newExpireTime
+      }
+    };
+
+    await axios(config)
+      .then((response) => {       
+        if (response.status === 200) {
+          console.log(response.data);
+          Create_Clients_Info(response.data);
+        }   
+
+      })
+      .catch((error) => {
+        console.log(error);
+        alert(error.response.data.message);
+      });
+
+  }
+
 
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Typography variant="h4">Users</Typography>
 
-        <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />}>
+        <Button variant="contained" color="primary" onClick={ShowDialog} startIcon={<Iconify icon="eva:plus-fill" />}>
           New User
         </Button>
       </Stack>
@@ -147,6 +261,7 @@ export default function Dashboard() {
           numSelected={selected.length}
           filterName={filterName}
           onFilterName={handleFilterByName}
+          setSelected_Del={setSelected_Del}
         />
 
         <div>
@@ -161,7 +276,7 @@ export default function Dashboard() {
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
                   { id: 'Name', label: 'Name' },
-                  { id: 'Email', label: 'Email' },                
+                  { id: 'Email', label: 'Email' },
                   { id: 'AccountNumber', label: 'AccountNumber' },
                   { id: 'ExpireTime', label: 'ExpireTime' },
                   { id: 'createdAt', label: 'Created' },
@@ -176,7 +291,7 @@ export default function Dashboard() {
                     <UserTableRow
                       key={row.id}
                       ID={row.id}
-                      Name={row.Name}                                   
+                      Name={row.Name}
                       Email={row.Email}
                       avatarUrl={row.avatarUrl}
                       AccountNumber={row.AccountNumber}
@@ -184,9 +299,9 @@ export default function Dashboard() {
                       createdAt={GetDateString(row.createdAt)}
                       clients={users}
                       setclients={setUers}
-                      ExpireTime={GetDateString(row.ExpireTime)}                    
-                      selected={selected.indexOf(row.Name) !== -1}
-                      handleClick={(event) => handleClick(event, row.Name)}
+                      ExpireTime={GetDateString(row.ExpireTime)}
+                      selected={selected.indexOf(row.id) !== -1}
+                      handleClick={(event) => handleClick(event, row.id)}
                     />
                   ))}
 
@@ -211,6 +326,85 @@ export default function Dashboard() {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Card>
+
+      <React.Fragment>
+        <Dialog
+          open={show}
+          onClose={handleClose}
+          PaperProps={{
+            component: 'form',
+            onSubmit: (event) => {
+              event.preventDefault();
+              handleClose();
+              Confirm_Create();
+            },
+
+          }}
+        >
+          <DialogTitle>Create</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Please enter client Information.
+            </DialogContentText>
+            <TextField
+              autoFocus
+              required
+              margin="dense"
+              id="name"
+              name="Name"
+              label="Name"
+              type="text"
+              fullWidth
+              variant="standard"
+              defaultValue={""}
+              onChange={(e) => { setNewName(e.target.value) }}
+            />
+            <TextField
+              autoFocus
+              required
+              margin="dense"
+              id="name"
+              name="Email"
+              label="Email Address"
+              type="email"
+              fullWidth
+              variant="standard"
+              defaultValue={""}
+              onChange={(e) => { setnewEmail(e.target.value) }}
+            />
+            <TextField
+              autoFocus
+              required
+              margin="dense"
+              id="name"
+              name="AccountNumber"
+              label="Account Number"
+              type="number"
+              fullWidth
+              variant="standard"
+              defaultValue={0}
+              onChange={(e) => { setnewAccountNumber(e.target.value) }}
+            />
+            <TextField
+              autoFocus
+              required
+              margin="dense"
+              id="name"
+              name="ExpireTime"
+              label="Expire Time"
+              type="date"
+              fullWidth
+              variant="standard"
+              onChange={(e) => { setnewExpireTime(e.target.value) }}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose}>Cancel</Button>
+            <Button type="submit">Confirm</Button>
+          </DialogActions>
+        </Dialog>
+      </React.Fragment>
+
     </Container>
   );
 }

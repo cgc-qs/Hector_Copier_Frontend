@@ -68,8 +68,10 @@ export default function UserTableRow({
 
   const Delete = () => {
     handleCloseMenu();
-    Confirm_Delete();
+    Confirm_Delete();    
   }
+
+
 
   const baseURL = process.env.REACT_APP_baseURL;
 
@@ -92,7 +94,7 @@ export default function UserTableRow({
         if (clients[i].id !== ID)
           newClients.push(clients[i]);
       }
-
+      
     }
     setclients(newClients);
   }
@@ -228,7 +230,7 @@ export default function UserTableRow({
           <DialogTitle>Edit</DialogTitle>
           <DialogContent>
             <DialogContentText>
-              Please modify client Information.
+              Please enter client Information.
             </DialogContentText>
             <TextField
               autoFocus
