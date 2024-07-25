@@ -4,16 +4,21 @@ import Router from './routes/Router';
 
 import { baselightTheme } from "./theme/DefaultColors";
 
+import store from './store'
+import { Provider } from 'react-redux'
+
 function App() {
   const routing = useRoutes(Router);
   const theme = baselightTheme;
   return (
-    <ThemeProvider theme={theme}>
+    <Provider store={store}>
+      <ThemeProvider theme={theme}>
 
-      <CssBaseline />
-      {routing}
+        <CssBaseline />
+        {routing}
 
-    </ThemeProvider>
+      </ThemeProvider>
+    </Provider >
   );
 }
 

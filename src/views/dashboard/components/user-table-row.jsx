@@ -28,6 +28,9 @@ import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 
+import { useDispatch } from 'react-redux';
+import {setShowProgressBar} from "../../../variableList"
+
 // ----------------------------------------------------------------------
 
 export default function UserTableRow({
@@ -52,7 +55,8 @@ export default function UserTableRow({
   const [newAccountNumber, setnewAccountNumber] = useState(AccountNumber);
   const [newExpireTime, setnewExpireTime] = useState(ExpireTime);
   const [newMonthlyFee, setnewMonthlFeee] = useState(monthlySubscript);
-  const accessToken = window.localStorage.getItem('accessToken')
+  const accessToken = window.localStorage.getItem('accessToken');
+  const dispatch = useDispatch();
 
 
   const handleOpenMenu = (event) => {
@@ -124,7 +128,7 @@ export default function UserTableRow({
         MonthlySubscript:newMonthlyFee,
       }
     };
-
+    dispatch(setShowProgressBar(true));
     await axios(config)
       .then((response) => {
 
@@ -132,11 +136,11 @@ export default function UserTableRow({
           console.log(response.data);
           Modify_Clients_Info(response.data.result, false);
         }
-
+        dispatch(setShowProgressBar(false));
       })
       .catch((error) => {
         console.log(error);
-
+        dispatch(setShowProgressBar(false));
       });
 
   }
@@ -154,7 +158,7 @@ export default function UserTableRow({
         id: ID,
       }
     };
-
+    dispatch(setShowProgressBar(true));
     await axios(config)
       .then((response) => {
 
@@ -162,11 +166,11 @@ export default function UserTableRow({
           console.log(response.data);
           Modify_Clients_Info(response.data.result, true);
         }
-
+        dispatch(setShowProgressBar(false));
       })
       .catch((error) => {
         console.log(error);
-
+        dispatch(setShowProgressBar(false));
       });
 
   }

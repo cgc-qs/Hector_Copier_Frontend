@@ -34,6 +34,9 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
+import { useDispatch } from 'react-redux';
+import {setShowProgressBar} from "../../variableList"
+
 
 import axios from 'axios';
 const accessToken = window.localStorage.getItem('accessToken')
@@ -44,19 +47,12 @@ const accessToken = window.localStorage.getItem('accessToken')
 export default function Dashboard() {
 
   const [users, setUers] = useState([]);
-
   const [page, setPage] = useState(0);
-
   const [order, setOrder] = useState('asc');
-
   const [selected, setSelected] = useState([]);
-
   const [orderBy, setOrderBy] = useState('name');
-
   const [filterName, setFilterName] = useState('');
-
   const [rowsPerPage, setRowsPerPage] = useState(5);
-
   const [show, setShow] = React.useState(false);
   const [newName, setNewName] = useState("");
   const [newEmail, setnewEmail] = useState("");
@@ -65,10 +61,54 @@ export default function Dashboard() {
 
   const [selected_Del, setSelected_Del] = useState(false);
   const [useMonthlyFee, setUseMonthlyFee] = React.useState(false);
-
   const [showDeleConfirm, setShowDeleConfirm] = React.useState(false);
+  const [showBulk, setShowBulk] = useState(false);
+  const [bulkClientText, setBulkClientText] = useState('');
 
-  
+  const dispatch = useDispatch();
+
+  const CloseBulk = () => {
+    setShowBulk(false);
+    setBulkClientText('');
+  }
+
+  const ConfirmBulk = async () => {
+    setShowBulk(false);
+    dispatch(setShowProgressBar(true));
+
+    let config = {
+      method: 'post',
+      url: `${baseURL}/RemoteCopier/ClientCreateBulk`,
+      headers: {
+        'Content-Type': 'application/json',
+        'access_token': accessToken
+      },
+      data: { BulkInfo: bulkClientText }
+    };
+    await axios(config)
+      .then((response) => {
+        if (response.status === 200) {
+          console.log(response);
+          setBulkClientText('');
+          let msg = response.data.message;
+          let newClients = response.data.result;
+          if (msg !== "")
+            alert(msg);
+          for (let i = 0; i < newClients?.length; i++)
+            users.push(newClients[i]);
+          setUers(users);         
+        }
+        dispatch(setShowProgressBar(false));
+      })
+      .catch((error) => {
+        console.log(error);
+        dispatch(setShowProgressBar(false));
+      });
+
+
+  }
+
+
   const handleCloseDeletConfirm = () => {
     setShowDeleConfirm(false);
     setSelected_Del(true);
@@ -99,6 +139,7 @@ export default function Dashboard() {
 
     if (!selected_Del)
       return;
+    dispatch(setShowProgressBar(true));
 
     let config = {
       method: 'post',
@@ -115,13 +156,13 @@ export default function Dashboard() {
           console.log(response.data.result);
           setSelected_Del(false);
           Create_Clients_Info_2();
-          setSelected([]);
+          setSelected([]);          
         }
-
+        dispatch(setShowProgressBar(false));
       })
       .catch((error) => {
         console.log(error);
-
+        dispatch(setShowProgressBar(false));
       });
 
 
@@ -136,6 +177,7 @@ export default function Dashboard() {
         'access_token': accessToken
       },
     };
+    dispatch(setShowProgressBar(true));
     axios(config)
       .then((response) => {
 
@@ -144,10 +186,12 @@ export default function Dashboard() {
           setUers(response.data.result);
         }
 
+        dispatch(setShowProgressBar(false));
+
       })
       .catch((error) => {
         console.log(error);
-
+        dispatch(setShowProgressBar(false));
       });
 
   }, []);
@@ -268,16 +312,20 @@ export default function Dashboard() {
       }
     };
 
+    dispatch(setShowProgressBar(true));
+
     await axios(config)
       .then((response) => {
         if (response.status === 200) {
           Create_Clients_Info(response.data);
         }
+        dispatch(setShowProgressBar(false));
 
       })
       .catch((error) => {
         console.log(error);
         alert(error.response.data.message);
+        dispatch(setShowProgressBar(false));
       });
 
   }
@@ -290,13 +338,20 @@ export default function Dashboard() {
 
 
   return (
-    <Container>
+    <Container>  
+     
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Typography variant="h4">Users</Typography>
+        <div>
+          <Button variant="contained" color="primary" onClick={ShowDialog} style={{ marginRight: 50 }} startIcon={<Iconify icon="eva:plus-fill" />}>
+            New User
+          </Button>
 
-        <Button variant="contained" color="primary" onClick={ShowDialog} startIcon={<Iconify icon="eva:plus-fill" />}>
-          New User
-        </Button>
+          <Button variant="contained" color="primary" onClick={() => { setShowBulk(true) }} startIcon={<Iconify icon="eva:plus-fill" />}>
+            Bulk Users
+          </Button>
+        </div>
+
       </Stack>
 
       <Card>
@@ -462,9 +517,9 @@ export default function Dashboard() {
             <Button type="submit">Confirm</Button>
           </DialogActions>
         </Dialog>
-      </React.Fragment>      
+      </React.Fragment>
 
-      <React.Fragment>       
+      <React.Fragment>
         <Dialog
           open={showDeleConfirm}
           onClose={handleCloseDeletConfirm}
@@ -483,6 +538,37 @@ export default function Dashboard() {
             <Button onClick={handleCancelDeletConfirm}>Disagree</Button>
             <Button onClick={handleCloseDeletConfirm} autoFocus>
               Agree
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </React.Fragment>
+
+      <React.Fragment>
+        <Dialog
+          open={showBulk}
+          onClose={CloseBulk}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            {"Enter Clients information"}
+          </DialogTitle>
+
+          <TextField
+            label="Bulk Client Informations"
+            multiline
+            rows={10} // Adjust the number of rows as needed
+            variant="outlined" // You can use other variants like "filled" or "standard"
+            value={bulkClientText}
+            onChange={(e) => setBulkClientText(e.target.value)}
+            fullWidth // Optional: makes the TextField take the full width of its container
+            style={{ minWidth: 500 }}
+          />
+
+          <DialogActions>
+            <Button onClick={CloseBulk}>cancel</Button>
+            <Button onClick={ConfirmBulk} autoFocus>
+              confirm
             </Button>
           </DialogActions>
         </Dialog>

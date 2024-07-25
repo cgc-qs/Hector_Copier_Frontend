@@ -5,6 +5,9 @@ import { Outlet } from 'react-router-dom';
 
 import Header from './header/Header';
 import Sidebar from './sidebar/Sidebar';
+import LinearProgress from '@mui/material/LinearProgress';
+import { useSelector } from 'react-redux'
+import {getShowProgressBar} from "../../variableList"
 
 const MainWrapper = styled('div')(() => ({
   display: 'flex',
@@ -26,6 +29,7 @@ const FullLayout = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const [isMobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   // const lgUp = useMediaQuery((theme) => theme.breakpoints.up("lg"));
+  const showProgress=useSelector(getShowProgressBar);
 
   return (
     <MainWrapper
@@ -50,11 +54,14 @@ const FullLayout = () => {
         {/* ------------------------------------------- */}
         {/* PageContent */}
         {/* ------------------------------------------- */}
+        {showProgress && <LinearProgress />}
         <Container sx={{
           paddingTop: "20px",
+          marginLeft:"0px",
           maxWidth: '1200px',
         }}
         >
+          
           {/* ------------------------------------------- */}
           {/* Page Route */}
           {/* ------------------------------------------- */}
