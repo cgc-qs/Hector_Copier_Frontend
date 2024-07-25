@@ -46,7 +46,7 @@ export default function UserTableRow({
   const [newEmail, setnewEmail] = useState(Email);
   const [newAccountNumber, setnewAccountNumber] = useState(AccountNumber);
   const [newExpireTime, setnewExpireTime] = useState(ExpireTime);
-
+  const accessToken = window.localStorage.getItem('accessToken')
 
 
   const handleOpenMenu = (event) => {
@@ -73,7 +73,7 @@ export default function UserTableRow({
 
 
 
-  const baseURL = process.env.REACT_APP_baseURL;
+  const baseURL = process.env.REACT_APP_ServerURL;
 
   const Modify_Clients_Info = (newInfo, isDelete) => {
     let newClients = [];
@@ -104,6 +104,10 @@ export default function UserTableRow({
     let config = {
       method: 'post',
       url: `${baseURL}/RemoteCopier/UpdateClient`,
+      headers: {
+        'Content-Type': 'application/json',
+        'access_token': accessToken
+    },
       data: {
         id: ID,
         Name: newName,
@@ -134,6 +138,10 @@ export default function UserTableRow({
     let config = {
       method: 'post',
       url: `${baseURL}/RemoteCopier/DeleteClient`,
+      headers: {
+        'Content-Type': 'application/json',
+        'access_token': accessToken
+    },
       data: {
         id: ID,
       }

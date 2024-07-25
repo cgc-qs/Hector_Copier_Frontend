@@ -13,6 +13,7 @@ import { Link } from 'react-router-dom';
 
 import CustomTextField from '../../../components/forms/theme-elements/CustomTextField';
 
+import axios from 'axios';
 
 
 const AuthLogin = ({ title, subtitle, subtext }) => {
@@ -20,15 +21,38 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [userName, setUserName] = useState("");
     const [passWord, setPassWord] = useState("");
+  
+    const baseURL = process.env.REACT_APP_ServerURL;
 
-    const validName=process.env.REACT_APP_USER_NAME;
-    const validPass=process.env.REACT_APP_USE_PASSWORD;
-
-    const CheckPasswordEmail = (event) => {
+    const Login = async  (event) => {
         event.preventDefault();
-        // console.log(validName,"==",validPass);
-        if (userName === validName && passWord === validPass)
-            setIsLoggedIn(true);
+
+        var _data = {
+            username:userName,
+            password:passWord
+        };
+        var config = {
+            method:'post',
+            url:`${baseURL}/RemoteCopier/login`,
+            // headers: {
+            //     'Content-Type': 'application/json',
+            //     'access_token': 'Bearer ' + accessToken
+            // },
+            data: _data
+        };       
+
+        await  axios(config)
+        .then((res) => {            
+            let accessToken=res.data.access_token
+            localStorage.setItem('accessToken', accessToken)
+            setIsLoggedIn(true);            
+        })
+        .catch((error) => {
+            console.log(error);
+            console.log(error.response.data.message);
+            localStorage.removeItem('accessToken')
+        });
+
     }
 
     const ChangeName = (event) => {
@@ -92,7 +116,7 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
                     component={Link}
                     // to="/dashboard"
                     type="submit"
-                    onClick={(e) => CheckPasswordEmail(e)}
+                    onClick={(e) => Login(e)}
 
                 >
                     Sign In

@@ -30,6 +30,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 
 import axios from 'axios';
+const accessToken = window.localStorage.getItem('accessToken')
 
 
 // ----------------------------------------------------------------------
@@ -62,7 +63,7 @@ export default function Dashboard() {
     setShow(false);
   };
 
-  const baseURL = process.env.REACT_APP_baseURL;
+  const baseURL = process.env.REACT_APP_ServerURL;
 
   useEffect(() => {
 
@@ -72,6 +73,10 @@ export default function Dashboard() {
     let config = {
       method: 'post',
       url: `${baseURL}/RemoteCopier/DeleteAllClient`,
+      headers: {
+        'Content-Type': 'application/json',
+        'access_token': accessToken
+    },
       data: { IDs: selected }
     };
     axios(config)
@@ -96,6 +101,10 @@ export default function Dashboard() {
     let config = {
       method: 'post',
       url: `${baseURL}/RemoteCopier/AllClients`,
+      headers: {
+                'Content-Type': 'application/json',
+                'access_token': accessToken
+            },
     };
     axios(config)
       .then((response) => {
@@ -222,6 +231,10 @@ export default function Dashboard() {
     let config = {
       method: 'post',
       url: `${baseURL}/RemoteCopier/ClientCreate`,
+      headers: {
+        'Content-Type': 'application/json',
+        'access_token': accessToken
+    },
       data: {
         Name: newName,
         Email: newEmail,
