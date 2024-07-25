@@ -24,6 +24,10 @@ import DialogTitle from '@mui/material/DialogTitle';
 import axios from 'axios';
 import { GetDateString } from './utils';
 
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+
 // ----------------------------------------------------------------------
 
 export default function UserTableRow({
@@ -38,7 +42,8 @@ export default function UserTableRow({
   AccountNumber,
   handleClick,
   createdAt,
-  updatedAt
+  updatedAt,
+  monthlySubscript
 }) {
   const [open, setOpen] = useState(null);
   const [show, setShow] = React.useState(false);
@@ -46,6 +51,7 @@ export default function UserTableRow({
   const [newEmail, setnewEmail] = useState(Email);
   const [newAccountNumber, setnewAccountNumber] = useState(AccountNumber);
   const [newExpireTime, setnewExpireTime] = useState(ExpireTime);
+  const [newMonthlyFee, setnewMonthlFeee] = useState(monthlySubscript);
   const accessToken = window.localStorage.getItem('accessToken')
 
 
@@ -68,7 +74,7 @@ export default function UserTableRow({
 
   const Delete = () => {
     handleCloseMenu();
-    Confirm_Delete();    
+    Confirm_Delete();
   }
 
 
@@ -85,6 +91,7 @@ export default function UserTableRow({
           newClients[i].Name = newInfo.Name;
           newClients[i].Email = newInfo.Email;
           newClients[i].AccountNumber = newInfo.AccountNumber;
+          newClients[i].MonthlySubscript=newMonthlyFee;
           newClients[i].ExpireTime = GetDateString(newInfo.ExpireTime);
           newClients[i].createdAt = GetDateString(newInfo.createdAt);
           newClients[i].updatedAt = GetDateString(newInfo.updatedAt);
@@ -94,7 +101,7 @@ export default function UserTableRow({
         if (clients[i].id !== ID)
           newClients.push(clients[i]);
       }
-      
+
     }
     setclients(newClients);
   }
@@ -107,13 +114,14 @@ export default function UserTableRow({
       headers: {
         'Content-Type': 'application/json',
         'access_token': accessToken
-    },
+      },
       data: {
         id: ID,
         Name: newName,
         Email: newEmail,
         AccountNumber: newAccountNumber,
-        ExpireTime: newExpireTime
+        ExpireTime: newExpireTime,
+        MonthlySubscript:newMonthlyFee,
       }
     };
 
@@ -141,7 +149,7 @@ export default function UserTableRow({
       headers: {
         'Content-Type': 'application/json',
         'access_token': accessToken
-    },
+      },
       data: {
         id: ID,
       }
@@ -188,6 +196,10 @@ export default function UserTableRow({
         <TableCell >{createdAt}</TableCell>
 
         <TableCell >{updatedAt}</TableCell>
+
+        <TableCell style={{ color: monthlySubscript ? "red" : "black" }}>
+          {monthlySubscript ? "Used" : ""}
+        </TableCell>
 
         {/* <TableCell>
           <Label color={(status === 'banned' && 'error') || 'success'}>{status}</Label>
@@ -292,6 +304,20 @@ export default function UserTableRow({
               defaultValue={ExpireTime}
               onChange={(e) => { setnewExpireTime(e.target.value) }}
             />
+            <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+              <InputLabel id="demo-simple-select-standard-label">use monthly subscription</InputLabel>
+              <Select
+                labelId="demo-simple-select-standard-label"
+                id="demo-simple-select-standard"
+                value={newMonthlyFee}
+                onChange={(event)=>{setnewMonthlFeee(event.target.value);}}
+                label="Monthly Subscription"
+              >
+                <MenuItem value={true}>True</MenuItem>
+                <MenuItem value={false}>false</MenuItem>
+              </Select>
+            </FormControl>
+
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose}>Cancel</Button>

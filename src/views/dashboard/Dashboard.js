@@ -29,6 +29,12 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 
+
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+
 import axios from 'axios';
 const accessToken = window.localStorage.getItem('accessToken')
 
@@ -54,14 +60,38 @@ export default function Dashboard() {
   const [show, setShow] = React.useState(false);
   const [newName, setNewName] = useState("");
   const [newEmail, setnewEmail] = useState("");
-  const [newAccountNumber, setnewAccountNumber] = useState();
-  const [newExpireTime, setnewExpireTime] = useState();
+  const [newAccountNumber, setnewAccountNumber] = useState(0);
+  const [newExpireTime, setnewExpireTime] = useState(new Date());
 
   const [selected_Del, setSelected_Del] = useState(false);
+  const [useMonthlyFee, setUseMonthlyFee] = React.useState(false);
+
+  const [showDeleConfirm, setShowDeleConfirm] = React.useState(false);
+
+  
+  const handleCloseDeletConfirm = () => {
+    setShowDeleConfirm(false);
+    setSelected_Del(true);
+  };
+
+  const handleCancelDeletConfirm = () => {
+    setShowDeleConfirm(false);
+    setSelected([]);
+  };
 
   const handleClose = () => {
     setShow(false);
   };
+
+  const getCurrentDate = () => {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based, so +1
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+
 
   const baseURL = process.env.REACT_APP_ServerURL;
 
@@ -76,7 +106,7 @@ export default function Dashboard() {
       headers: {
         'Content-Type': 'application/json',
         'access_token': accessToken
-    },
+      },
       data: { IDs: selected }
     };
     axios(config)
@@ -102,9 +132,9 @@ export default function Dashboard() {
       method: 'post',
       url: `${baseURL}/RemoteCopier/AllClients`,
       headers: {
-                'Content-Type': 'application/json',
-                'access_token': accessToken
-            },
+        'Content-Type': 'application/json',
+        'access_token': accessToken
+      },
     };
     axios(config)
       .then((response) => {
@@ -179,16 +209,10 @@ export default function Dashboard() {
 
   const notFound = !dataFiltered.length && !!filterName;
 
-  // const GetDateString=(date)=>{
-
-  //   var dateType=new Date(date);
-  //   var month=(dateType.getMonth()+1)<10? ("0"+(dateType.getMonth()+1).toString()):(dateType.getMonth()+1).toString();
-  //   var day=(dateType.getDate())<10? ("0"+(dateType.getDate()).toString()):(dateType.getDate()).toString();
-  //   return dateType.getFullYear()+"-"+month+"-"+day;     
-  // }
 
   const ShowDialog = () => {
     setShow(true);
+    setUseMonthlyFee(false);
   }
 
 
@@ -204,6 +228,7 @@ export default function Dashboard() {
     new_client.ExpireTime = GetDateString(newInfo.ExpireTime);
     new_client.createdAt = GetDateString(newInfo.createdAt);
     new_client.updatedAt = GetDateString(newInfo.updatedAt);
+    new_client.MonthlySubscript = newInfo.MonthlySubscript;
     new_client.id = newInfo.id;
     newClients.push(new_client);
     setUers(newClients);
@@ -227,28 +252,27 @@ export default function Dashboard() {
 
 
   const Confirm_Create = async () => {
-
     let config = {
       method: 'post',
       url: `${baseURL}/RemoteCopier/ClientCreate`,
       headers: {
         'Content-Type': 'application/json',
         'access_token': accessToken
-    },
+      },
       data: {
         Name: newName,
         Email: newEmail,
         AccountNumber: newAccountNumber,
-        ExpireTime: newExpireTime
+        ExpireTime: newExpireTime,
+        MonthlySubscript: useMonthlyFee
       }
     };
 
     await axios(config)
-      .then((response) => {       
+      .then((response) => {
         if (response.status === 200) {
-          console.log(response.data);
           Create_Clients_Info(response.data);
-        }   
+        }
 
       })
       .catch((error) => {
@@ -257,6 +281,12 @@ export default function Dashboard() {
       });
 
   }
+
+
+
+  const handleChange = (event) => {
+    setUseMonthlyFee(event.target.value);
+  };
 
 
   return (
@@ -274,7 +304,7 @@ export default function Dashboard() {
           numSelected={selected.length}
           filterName={filterName}
           onFilterName={handleFilterByName}
-          setSelected_Del={setSelected_Del}
+          setSelected_Del={setShowDeleConfirm}
         />
 
         <div>
@@ -294,6 +324,7 @@ export default function Dashboard() {
                   { id: 'ExpireTime', label: 'ExpireTime' },
                   { id: 'createdAt', label: 'Created' },
                   { id: 'updatedAt', label: 'Updated' },
+                  { id: 'MonthlySubscript', label: 'Monthly Subscribe?' },
                   { id: '' },
                 ]}
               />
@@ -315,6 +346,7 @@ export default function Dashboard() {
                       ExpireTime={GetDateString(row.ExpireTime)}
                       selected={selected.indexOf(row.id) !== -1}
                       handleClick={(event) => handleClick(event, row.id)}
+                      monthlySubscript={row.MonthlySubscript}
                     />
                   ))}
 
@@ -408,15 +440,54 @@ export default function Dashboard() {
               type="date"
               fullWidth
               variant="standard"
+              defaultValue={getCurrentDate()}
               onChange={(e) => { setnewExpireTime(e.target.value) }}
             />
+            <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+              <InputLabel id="demo-simple-select-standard-label">use monthly subscription</InputLabel>
+              <Select
+                labelId="demo-simple-select-standard-label"
+                id="demo-simple-select-standard"
+                value={useMonthlyFee}
+                onChange={handleChange}
+                label="Monthly Subscription"
+              >
+                <MenuItem value={true}>True</MenuItem>
+                <MenuItem value={false}>false</MenuItem>
+              </Select>
+            </FormControl>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose}>Cancel</Button>
             <Button type="submit">Confirm</Button>
           </DialogActions>
         </Dialog>
+      </React.Fragment>      
+
+      <React.Fragment>       
+        <Dialog
+          open={showDeleConfirm}
+          onClose={handleCloseDeletConfirm}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            {"Confirm"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              Do you want to delete items really.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCancelDeletConfirm}>Disagree</Button>
+            <Button onClick={handleCloseDeletConfirm} autoFocus>
+              Agree
+            </Button>
+          </DialogActions>
+        </Dialog>
       </React.Fragment>
+
 
     </Container>
   );
