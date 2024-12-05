@@ -30,10 +30,10 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 
 
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
+// import InputLabel from '@mui/material/InputLabel';
+// import MenuItem from '@mui/material/MenuItem';
+// import FormControl from '@mui/material/FormControl';
+// import Select from '@mui/material/Select';
 import { useDispatch } from 'react-redux';
 import {setShowProgressBar} from "../../variableList"
 
@@ -60,6 +60,7 @@ export default function Dashboard() {
   const [newExpireTime, setnewExpireTime] = useState(new Date());
 
   const [selected_Del, setSelected_Del] = useState(false);
+  // eslint-disable-next-line
   const [useMonthlyFee, setUseMonthlyFee] = React.useState(false);
   const [showDeleConfirm, setShowDeleConfirm] = React.useState(false);
   const [showBulk, setShowBulk] = useState(false);
@@ -272,7 +273,7 @@ export default function Dashboard() {
     new_client.ExpireTime = GetDateString(newInfo.ExpireTime);
     new_client.createdAt = GetDateString(newInfo.createdAt);
     new_client.updatedAt = GetDateString(newInfo.updatedAt);
-    new_client.MonthlySubscript = newInfo.MonthlySubscript;
+    new_client.MonthlySubscript = false;
     new_client.id = newInfo.id;
     newClients.push(new_client);
     setUers(newClients);
@@ -308,7 +309,7 @@ export default function Dashboard() {
         Email: newEmail,
         AccountNumber: newAccountNumber,
         ExpireTime: newExpireTime,
-        MonthlySubscript: useMonthlyFee
+        MonthlySubscript: false
       }
     };
 
@@ -332,9 +333,9 @@ export default function Dashboard() {
 
 
 
-  const handleChange = (event) => {
-    setUseMonthlyFee(event.target.value);
-  };
+  // const handleChange = (event) => {
+  //   setUseMonthlyFee(event.target.value);
+  // };
 
 
   return (
@@ -347,9 +348,9 @@ export default function Dashboard() {
             New User
           </Button>
 
-          <Button variant="contained" color="primary" onClick={() => { setShowBulk(true) }} startIcon={<Iconify icon="eva:plus-fill" />}>
+          {/* <Button variant="contained" color="primary" onClick={() => { setShowBulk(true) }} startIcon={<Iconify icon="eva:plus-fill" />}>
             Bulk Users
-          </Button>
+          </Button> */}
         </div>
 
       </Stack>
@@ -374,12 +375,12 @@ export default function Dashboard() {
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
                   { id: 'Name', label: 'Name' },
-                  { id: 'Email', label: 'Email' },
+                  { id: 'Email', label: 'BrokerName' },
                   { id: 'AccountNumber', label: 'AccountNumber' },
                   { id: 'ExpireTime', label: 'ExpireTime' },
                   { id: 'createdAt', label: 'Created' },
                   { id: 'updatedAt', label: 'Updated' },
-                  { id: 'MonthlySubscript', label: 'Monthly Subscribe?' },
+                  // { id: 'MonthlySubscript', label: 'Monthly Subscribe?' },
                   { id: '' },
                 ]}
               />
@@ -401,7 +402,7 @@ export default function Dashboard() {
                       ExpireTime={GetDateString(row.ExpireTime)}
                       selected={selected.indexOf(row.id) !== -1}
                       handleClick={(event) => handleClick(event, row.id)}
-                      monthlySubscript={row.MonthlySubscript}
+                      // monthlySubscript={row.MonthlySubscript}
                     />
                   ))}
 
@@ -465,8 +466,8 @@ export default function Dashboard() {
               margin="dense"
               id="name"
               name="Email"
-              label="Email Address"
-              type="email"
+              label="Broker Name"
+              type="text"
               fullWidth
               variant="standard"
               defaultValue={""}
@@ -498,7 +499,7 @@ export default function Dashboard() {
               defaultValue={getCurrentDate()}
               onChange={(e) => { setnewExpireTime(e.target.value) }}
             />
-            <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+            {/* <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
               <InputLabel id="demo-simple-select-standard-label">use monthly subscription</InputLabel>
               <Select
                 labelId="demo-simple-select-standard-label"
@@ -510,7 +511,7 @@ export default function Dashboard() {
                 <MenuItem value={true}>True</MenuItem>
                 <MenuItem value={false}>false</MenuItem>
               </Select>
-            </FormControl>
+            </FormControl> */}
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose}>Cancel</Button>

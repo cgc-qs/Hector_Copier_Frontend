@@ -24,9 +24,9 @@ import DialogTitle from '@mui/material/DialogTitle';
 import axios from 'axios';
 import { GetDateString } from './utils';
 
-import InputLabel from '@mui/material/InputLabel';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
+// import InputLabel from '@mui/material/InputLabel';
+// import FormControl from '@mui/material/FormControl';
+// import Select from '@mui/material/Select';
 
 import { useDispatch } from 'react-redux';
 import {setShowProgressBar} from "../../../variableList"
@@ -54,6 +54,7 @@ export default function UserTableRow({
   const [newEmail, setnewEmail] = useState(Email);
   const [newAccountNumber, setnewAccountNumber] = useState(AccountNumber);
   const [newExpireTime, setnewExpireTime] = useState(ExpireTime);
+  // eslint-disable-next-line
   const [newMonthlyFee, setnewMonthlFeee] = useState(monthlySubscript);
   const accessToken = window.localStorage.getItem('accessToken');
   const dispatch = useDispatch();
@@ -125,7 +126,7 @@ export default function UserTableRow({
         Email: newEmail,
         AccountNumber: newAccountNumber,
         ExpireTime: newExpireTime,
-        MonthlySubscript:newMonthlyFee,
+        MonthlySubscript:false,
       }
     };
     dispatch(setShowProgressBar(true));
@@ -275,8 +276,8 @@ export default function UserTableRow({
               margin="dense"
               id="name"
               name="Email"
-              label="Email Address"
-              type="email"
+              label="Broker Name"
+              type="text"
               fullWidth
               variant="standard"
               defaultValue={Email}
@@ -308,7 +309,7 @@ export default function UserTableRow({
               defaultValue={ExpireTime}
               onChange={(e) => { setnewExpireTime(e.target.value) }}
             />
-            <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+            {/* <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
               <InputLabel id="demo-simple-select-standard-label">use monthly subscription</InputLabel>
               <Select
                 labelId="demo-simple-select-standard-label"
@@ -320,7 +321,7 @@ export default function UserTableRow({
                 <MenuItem value={true}>True</MenuItem>
                 <MenuItem value={false}>false</MenuItem>
               </Select>
-            </FormControl>
+            </FormControl> */}
 
           </DialogContent>
           <DialogActions>
